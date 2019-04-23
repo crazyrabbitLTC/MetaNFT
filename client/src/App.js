@@ -8,6 +8,7 @@ const getWeb3 = require("@drizzle-utils/get-web3");
 
 //Contract
 const MetaNFTContract = require("../../contracts/MetaNFT.sol");
+//const MetaNFTContract = artifacts.require("")
 //console.log(MetaNFTContract);
 
 //AutoAppReload
@@ -46,7 +47,9 @@ function App() {
 
       const deployedNetwork = MetaNFTContract.networks[networkId];
       console.log("Contract", MetaNFTContract);
-      console.log("deployed network: ", MetaNFTContract.networks[1556035038903]);
+      console.log("Network", MetaNFTContract.networks);
+      
+      console.log("deployed network: ", MetaNFTContract.networks[networkId]);
       console.log("Network ID", typeof(networkId), networkId, 1556035038903 );
       const instance = new web3.eth.Contract(
         MetaNFTContract.abi,
