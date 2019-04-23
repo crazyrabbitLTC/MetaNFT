@@ -1,99 +1,88 @@
 import React, { useState, useEffect } from "react";
-import getWeb3, { getGanacheWeb3 } from "./utils/getWeb3";
-import Web3Info from "./components/Web3Info/index.js";
-import { Loader } from 'rimble-ui';
-import { zeppelinSolidityHotLoaderOptions } from '../config/webpack';
+//import styles from "./App.module.scss";
+import NetworkName from "./utils/NetworkName";
+import { zeppelinSolidityHotLoaderOptions } from "../config/webpack";
 
-import styles from './App.module.scss';
+//Drizzle based utils
+const getWeb3 = require("@drizzle-utils/get-web3");
+
+//Contract
+const ERC721 = require("../../contracts/MetaNFT.sol");
 
 function App() {
-  
   const initialState = {
-    storageValue: 0,
     web3: null,
     accounts: null,
-    contract: null,
-    token: null,
-    route: window.location.pathname.replace("/",""),
-    pollInterval: null,
-    ganacheProvider: null,
+    provider: null,
+    networkId: null,
+    networkName: null,
+    autoRefresh: false,
+    appReady: false,
+    contract: ERC721,
+    instance: null
   };
 
-  const [state, setState] = useState(initialState);
-
-
-  const getGanacheAddresses = async () => {
-    if (!state.ganacheProvider) {
-      state.ganacheProvider = getGanacheWeb3();
-    }
-    if (state.ganacheProvider) {
-      return await state.ganacheProvider.eth.getAccounts();
-    }
-    return [];
-  }
+  const [state, setAppState] = useState(initialState);
 
   useEffect(() => {
-
-    const loadProviderData = async() => {
-
-      const isProd = process.env.NODE_ENV === 'production';
+    const loadWeb3 = async () => {
       const web3 = await getWeb3();
-      const ganacheAccounts = await getGanacheAddresses();
-
-      // Use web3 to get the user's accounts.
+      const provider = web3.currentProvider;
+      const networkId = await web3.eth.net.getId();
+      const networkName = NetworkName(networkId);
       const accounts = await web3.eth.getAccounts();
 
-      // Get the contract instance.
-      let ERC721 = {};
-      const networkId = await web3.eth.net.getId();
-      const isMetaMask = web3.currentProvider.isMetaMask;
-      let balance = accounts.length > 0 ? await web3.eth.getBalance(accounts[0]): web3.utils.toWei('0');
-      balance = web3.utils.fromWei(balance, 'ether');
-      ERC721 = require("../../contracts/MetaNFT.sol");
-      setState({ web3, ganacheAccounts, accounts, balance, networkId, isMetaMask });
-    }
+      const deployedNetwork = ERC721.networks[networkId];
+      const instance = new web3.eth.Contract(
+        ERC721.abi,
+        deployedNetwork && deployedNetwork.address
+      );
 
-    try {
-      loadProviderData();
-    } catch (error) {
-      console.log(error)
-    }
+      setAppState({
+        ...state,
+        web3,
+        provider,
+        networkId,
+        accounts,
+        networkName,
+        appReady: true,
+        instance
+      });
+    };
 
-    if(state.pollInterval){
-      return clearInterval(state.pollInterval)
-    }
+    console.log(state);
 
-  },[])
+    loadWeb3();
+  }, [state.networkId, state.appReady]);
 
-  const renderLoading = () =>  {
-    return (
-      <div className={styles.loader}>
-        <Loader size="80px" color="red" />
-        <h3> Loading Web3, accounts, and contract...</h3>
-        <p> Unlock your metamask </p>
-      </div>
-    );
-  }
+  //not sure if I need to actually return the subscription cleanup here...
+  useEffect(() => {
+    const subscribeToNetworkChange = async () => {
+      if (!state.autoRefresh) {
+        window.ethereum.autoRefreshOnNetworkChange = false;
+        window.ethereum.on("networkChanged", networkId => {
+          setAppState({ ...state, networkId, appReady: false });
+        });
+      }
+    };
 
-  const renderLoaded = () =>  {
-    return (
-      <div className={styles.App}>
-        <h1>Good to Go!</h1>
-        <p>Zepkit has created your app.</p>
-        <h2>See your web3 info below:</h2>
-        <Web3Info {...this.state} />
-      </div>
-    );
-  }
+    if (window.ethereum) subscribeToNetworkChange();
+  });
 
-  return (
-    <div>
-      <p>You clicked times</p>
-      <p>Currently using React {React.version}</p> : null
-    </div>
-  );
+  useEffect(() => {
+    const subscribeToAccountsChange = async () => {
+      if (!state.autoRefresh) {
+        window.ethereum.autoRefreshOnNetworkChange = false;
+        window.ethereum.on("accountsChanged", accounts => {
+          setAppState({ ...state, accounts, appReady: false });
+        });
+      }
+    };
 
+    if (window.ethereum) subscribeToAccountsChange();
+  });
+
+  return <div> Hello.</div>;
 }
 
 export default App;
-
