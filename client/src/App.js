@@ -56,14 +56,14 @@ function App() {
       });
     };
 
-    //console.log(state);
+    console.log(state);
 
     try {
       loadWeb3();
     } catch (error) {
       console.log(error);
     }
-  }, [state.networkId, state.appReady]);
+  }, [state.appReady]);
 
   useEffect(() => {
     const watchForChanges = async () => {
