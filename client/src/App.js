@@ -29,7 +29,7 @@ function App() {
   const initialTokenState = {
     name: "",
     symbol: "",
-    tokenURI: ""
+    tokenReady: ""
   };
 
   const [state, setAppState] = useState(initialState);
@@ -106,8 +106,9 @@ function App() {
       console.log("this is the contract", contract);
       let name = await contract.methods.name().call();
       let symbol = await contract.methods.symbol().call();
-
-      setTokenState({ ...state, name, symbol });
+      let tokenReady = await contract.methods.isTokenReady().call();
+      console.log(tokenReady);
+      setTokenState({ ...state, name, symbol, tokenReady });
     };
 
     if (state.contract) {
@@ -120,7 +121,7 @@ function App() {
     
       { value => 
         (<div>
-          Your token is called: {tokenState.name} and Symbol:{" "}
+          Your token is called: {tokenState.name} and is ready: {tokenState.tokenReady} and the Symbol: 
           {tokenState.symbol}
         </div>)
       }
