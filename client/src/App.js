@@ -28,7 +28,8 @@ function App() {
 
   const initialTokenState = {
     name: "",
-    symbol: ""
+    symbol: "",
+    tokenURI: ""
   };
 
   const [state, setAppState] = useState(initialState);
@@ -111,7 +112,11 @@ function App() {
     }
   }, [state.appReady]);
 
-  return <div>Your token is called: {tokenState.name} and Symbol: {tokenState.symbol}</div>;
+  return (
+    <div>
+      Your token is called: {tokenState.name} and Symbol: {tokenState.symbol}
+    </div>
+  );
 }
 
 export default App;
