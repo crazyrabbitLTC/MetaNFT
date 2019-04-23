@@ -70,7 +70,7 @@ function App() {
       let accounts = await state.web3.eth.getAccounts();
       let networkId = await state.web3.eth.net.getId();
 
-      if (accounts[0] != state.accounts[0] || networkId != state.networkId) {
+      if (accounts[0] !== state.accounts[0] || networkId !== state.networkId) {
         setAppState({ ...state, appReady: false });
       }
     };
