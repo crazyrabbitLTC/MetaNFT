@@ -27,6 +27,7 @@ function App() {
   };
 
   const [state, setAppState] = useState(initialState);
+  
 
   useEffect(() => {
     const loadWeb3 = async () => {
@@ -93,14 +94,14 @@ function App() {
   useEffect(() => {
     const getTokenSupply = async () => {
       const { contract } = state;
-      console.log(contract);
+      console.log("this is the contract", contract);
       let response = await contract.methods.name().call();
 
-      console.log(response);
+      console.log("This is the response: ", response);
     };
 
     if (state.contract) {
-      //  getTokenSupply();
+    getTokenSupply();
     }
   }, [state.appReady]);
 
