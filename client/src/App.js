@@ -35,6 +35,9 @@ function App() {
   const [state, setAppState] = useState(initialState);
   const [tokenState, setTokenState] = useState(initialTokenState);
 
+  const AppState = React.createContext(state);
+  const TokenState = React.createContext(tokenState);
+
   useEffect(() => {
     const loadWeb3 = async () => {
       const web3 = await getWeb3();
@@ -113,9 +116,12 @@ function App() {
   }, [state.appReady]);
 
   return (
-    <div>
+    <AppState.Consumer>
+      <TokenState.Consumer>    <div>
       Your token is called: {tokenState.name} and Symbol: {tokenState.symbol}
-    </div>
+    </div></TokenState.Consumer>
+    </AppState.Consumer>
+
   );
 }
 
