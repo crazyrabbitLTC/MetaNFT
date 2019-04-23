@@ -7,7 +7,8 @@ import { zeppelinSolidityHotLoaderOptions } from "../config/webpack";
 const getWeb3 = require("@drizzle-utils/get-web3");
 
 //Contract
-const Contract = require("../../contracts/MetaNFT.sol");
+const MetaNFTContract = require("../../contracts/MetaNFT.sol");
+//console.log(MetaNFTContract);
 
 //AutoAppReload
 const autoRelodOnNetworkChange = false;
@@ -21,11 +22,11 @@ function App() {
     networkName: null,
     autoRefresh: false,
     appReady: false,
-    contract: Contract,
-    instance: null
+    contract: null
   };
 
   const [state, setAppState] = useState(initialState);
+
 
   useEffect(() => {
     const loadWeb3 = async () => {
@@ -42,13 +43,17 @@ function App() {
       } catch (error) {
         console.error(error);
       }
-      
 
-      const deployedNetwork = Contract.networks[networkId];
+      const deployedNetwork = MetaNFTContract.networks[networkId];
+      console.log("Contract", MetaNFTContract);
+      console.log("deployed network: ", MetaNFTContract.networks[1556035038903]);
+      console.log("Network ID", typeof(networkId), networkId, 1556035038903 );
       const instance = new web3.eth.Contract(
-        Contract.abi,
+        MetaNFTContract.abi,
         deployedNetwork && deployedNetwork.address
       );
+
+      console.log("Instance: ", instance);
 
       setAppState({
         ...state,
@@ -58,7 +63,7 @@ function App() {
         accounts,
         networkName,
         appReady: true,
-        instance
+        contract: instance
       });
     };
 
@@ -88,19 +93,26 @@ function App() {
     }
   },[state.appReady]);
 
-  const getTokenSupply = async () => {
-    const {contract} = state;
-    const response = await contract.methods.totalSupply().call();
+  useEffect(()=> {
 
-  }
+    const getTokenSupply = async () => {
+      const {contract} = state;
+      console.log(contract);
+      let response = await contract.methods.name().call();
+  
+      console.log(response)
+    }
 
-  const sendEther = async () => {
-    const address = "0x9D5Bf8936a662bc0cb9dc7ae0f11dd5740B4b3BE";
-    //var send = web3.eth.sendTransaction({from:addr,to:toAddress, value:amountToSend});
+    if(state.contract){
+  //  getTokenSupply();
+    }
 
-  }
 
-  return <div> Hello.</div>;
+  },[state.appReady]);
+
+
+
+  return (<div> Hello.</div>);
 }
 
 export default App;
