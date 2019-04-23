@@ -7,7 +7,10 @@ import { zeppelinSolidityHotLoaderOptions } from "../config/webpack";
 const getWeb3 = require("@drizzle-utils/get-web3");
 
 //Contract
-const ERC721 = require("../../contracts/MetaNFT.sol");
+const Contract = require("../../contracts/MetaNFT.sol");
+
+//AutoAppReload
+const autoRelodOnNetworkChange = false;
 
 function App() {
   const initialState = {
@@ -18,7 +21,7 @@ function App() {
     networkName: null,
     autoRefresh: false,
     appReady: false,
-    contract: ERC721,
+    contract: Contract,
     instance: null
   };
 
@@ -32,9 +35,12 @@ function App() {
       const networkName = NetworkName(networkId);
       const accounts = await web3.eth.getAccounts();
 
-      const deployedNetwork = ERC721.networks[networkId];
+      //prevent auto reloads on network changes
+      window.ethereum.autoRefreshOnNetworkChange = autoRelodOnNetworkChange;
+
+      const deployedNetwork = Contract.networks[networkId];
       const instance = new web3.eth.Contract(
-        ERC721.abi,
+        Contract.abi,
         deployedNetwork && deployedNetwork.address
       );
 
@@ -50,36 +56,31 @@ function App() {
       });
     };
 
-    console.log(state);
+    //console.log(state);
 
-    loadWeb3();
+    try {
+      loadWeb3();
+    } catch (error) {
+      console.log(error);
+    }
   }, [state.networkId, state.appReady]);
 
-  //not sure if I need to actually return the subscription cleanup here...
   useEffect(() => {
-    const subscribeToNetworkChange = async () => {
-      if (!state.autoRefresh) {
-        window.ethereum.autoRefreshOnNetworkChange = false;
-        window.ethereum.on("networkChanged", networkId => {
-          setAppState({ ...state, networkId, appReady: false });
-        });
+    const watchForChanges = async () => {
+      let accounts = await state.web3.eth.getAccounts();
+      let networkId = await state.web3.eth.net.getId();
+
+      if (accounts[0] != state.accounts[0] || networkId != state.networkId) {
+        setAppState({ ...state, appReady: false });
       }
     };
 
-    if (window.ethereum) subscribeToNetworkChange();
-  });
-
-  useEffect(() => {
-    const subscribeToAccountsChange = async () => {
-      if (!state.autoRefresh) {
-        window.ethereum.autoRefreshOnNetworkChange = false;
-        window.ethereum.on("accountsChanged", accounts => {
-          setAppState({ ...state, accounts, appReady: false });
-        });
-      }
-    };
-
-    if (window.ethereum) subscribeToAccountsChange();
+    if (state.web3) {
+      let id = setInterval(watchForChanges, 1000);
+      return function cleanup() {
+        clearInterval(id);
+      };
+    }
   });
 
   return <div> Hello.</div>;

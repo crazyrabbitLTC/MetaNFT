@@ -1,5 +1,5 @@
 export default function NetworkName(networkId) {
-  console.log(`Here and id is ${networkId}`);
+  //console.log(`Here and id is ${networkId}`);
           switch (networkId) {
           case 3:
             return 'Ropsten';
