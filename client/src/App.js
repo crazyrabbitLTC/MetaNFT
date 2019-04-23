@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 //import styles from "./App.module.scss";
 import NetworkName from "./utils/NetworkName";
-import { zeppelinSolidityHotLoaderOptions } from "../config/webpack";
+//import { zeppelinSolidityHotLoaderOptions } from "../config/webpack";
 //Contract
 //const MetaNFTContract = require("../../contracts/MetaNFT.sol");
 import MetaNFTContract from "./contracts/MetaNFT.json";
@@ -35,7 +35,7 @@ function App() {
   const [state, setAppState] = useState(initialState);
   const [tokenState, setTokenState] = useState(initialTokenState);
 
-  const AppState = React.createContext(state);
+  //const AppState = React.createContext(state);
   const TokenState = React.createContext(tokenState);
 
   useEffect(() => {
@@ -116,12 +116,15 @@ function App() {
   }, [state.appReady]);
 
   return (
-    <AppState.Consumer>
-      <TokenState.Consumer>    <div>
-      Your token is called: {tokenState.name} and Symbol: {tokenState.symbol}
-    </div></TokenState.Consumer>
-    </AppState.Consumer>
-
+    <TokenState.Consumer>
+    
+      { value => 
+        (<div>
+          Your token is called: {tokenState.name} and Symbol:{" "}
+          {tokenState.symbol}
+        </div>)
+      }
+    </TokenState.Consumer>
   );
 }
 
