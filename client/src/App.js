@@ -26,8 +26,13 @@ function App() {
     contract: null
   };
 
+  const initialTokenState = {
+    name: "",
+    symbol: ""
+  };
+
   const [state, setAppState] = useState(initialState);
-  
+  const [tokenState, setTokenState] = useState(initialTokenState);
 
   useEffect(() => {
     const loadWeb3 = async () => {
@@ -95,17 +100,18 @@ function App() {
     const getTokenSupply = async () => {
       const { contract } = state;
       console.log("this is the contract", contract);
-      let response = await contract.methods.name().call();
+      let name = await contract.methods.name().call();
+      let symbol = await contract.methods.symbol().call();
 
-      console.log("This is the response: ", response);
+      setTokenState({ ...state, name, symbol });
     };
 
     if (state.contract) {
-    getTokenSupply();
+      getTokenSupply();
     }
   }, [state.appReady]);
 
-  return <div> Hello.</div>;
+  return <div>Your token is called: {tokenState.name} and Symbol: {tokenState.symbol}</div>;
 }
 
 export default App;
