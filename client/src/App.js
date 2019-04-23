@@ -2,13 +2,13 @@ import React, { useState, useEffect } from "react";
 //import styles from "./App.module.scss";
 import NetworkName from "./utils/NetworkName";
 import { zeppelinSolidityHotLoaderOptions } from "../config/webpack";
+//Contract
+//const MetaNFTContract = require("../../contracts/MetaNFT.sol");
+import MetaNFTContract from "./contracts/MetaNFT.json";
 
 //Drizzle based utils
 const getWeb3 = require("@drizzle-utils/get-web3");
 
-//Contract
-const MetaNFTContract = require("../../contracts/MetaNFT.sol");
-//const MetaNFTContract = artifacts.require("")
 //console.log(MetaNFTContract);
 
 //AutoAppReload
@@ -28,7 +28,6 @@ function App() {
 
   const [state, setAppState] = useState(initialState);
 
-
   useEffect(() => {
     const loadWeb3 = async () => {
       const web3 = await getWeb3();
@@ -46,11 +45,6 @@ function App() {
       }
 
       const deployedNetwork = MetaNFTContract.networks[networkId];
-      console.log("Contract", MetaNFTContract);
-      console.log("Network", MetaNFTContract.networks);
-      
-      console.log("deployed network: ", MetaNFTContract.networks[networkId]);
-      console.log("Network ID", typeof(networkId), networkId, 1556035038903 );
       const instance = new web3.eth.Contract(
         MetaNFTContract.abi,
         deployedNetwork && deployedNetwork.address
@@ -94,28 +88,23 @@ function App() {
         clearInterval(id);
       };
     }
-  },[state.appReady]);
+  }, [state.appReady]);
 
-  useEffect(()=> {
-
+  useEffect(() => {
     const getTokenSupply = async () => {
-      const {contract} = state;
+      const { contract } = state;
       console.log(contract);
       let response = await contract.methods.name().call();
-  
-      console.log(response)
+
+      console.log(response);
+    };
+
+    if (state.contract) {
+      //  getTokenSupply();
     }
+  }, [state.appReady]);
 
-    if(state.contract){
-  //  getTokenSupply();
-    }
-
-
-  },[state.appReady]);
-
-
-
-  return (<div> Hello.</div>);
+  return <div> Hello.</div>;
 }
 
 export default App;
