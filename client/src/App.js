@@ -23,7 +23,10 @@ function App() {
     networkName: null,
     autoRefresh: false,
     appReady: false,
-    contract: null
+    contract: null, 
+    tokenName: "",
+    tokenSymbol: "",
+    tokenReady: "",
   };
 
   const initialTokenState = {
@@ -35,8 +38,8 @@ function App() {
   const [state, setAppState] = useState(initialState);
   const [tokenState, setTokenState] = useState(initialTokenState);
 
-  //const AppState = React.createContext(state);
-  const TokenState = React.createContext(tokenState);
+  const AppState = React.createContext(state);
+
 
   useEffect(() => {
     const loadWeb3 = async () => {
@@ -104,11 +107,11 @@ function App() {
     const getTokenSupply = async () => {
       const { contract } = state;
       console.log("this is the contract", contract);
-      let name = await contract.methods.name().call();
-      let symbol = await contract.methods.symbol().call();
+      let tokenName = await contract.methods.name().call();
+      let tokenSymbol = await contract.methods.symbol().call();
       let tokenReady = await contract.methods.isTokenReady().call();
       console.log(tokenReady);
-      setTokenState({ ...state, name, symbol, tokenReady });
+      setAppState({ ...state, tokenName, tokenSymbol, tokenReady });
     };
 
     if (state.contract) {
@@ -117,15 +120,16 @@ function App() {
   }, [state.appReady]);
 
   return (
-    <TokenState.Consumer>
+    <AppState.Consumer>
     
       { value => 
         (<div>
-          Your token is called: {tokenState.name} and is ready: {tokenState.tokenReady} and the Symbol: 
-          {tokenState.symbol}
+          Your token is called: {state.tokenName} and the Symbol: 
+          {state.tokenSymbol}. <br/>
+          Ready: {state.tokenReady ? "True" : "False"} 
         </div>)
       }
-    </TokenState.Consumer>
+    </AppState.Consumer>
   );
 }
 
